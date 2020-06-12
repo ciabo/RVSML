@@ -2,7 +2,7 @@ import numpy as np
 import dtw
 import OPW
 
-def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=50, lambda2=12.1, sigma=1,):
+def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=50, lambda2=12.1, sigma=1):
     """
     :param trainset: list containing the training sequences divided by class
                         trainset: a list with size of (1, the number of classes);
@@ -27,7 +27,7 @@ def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=
     N = sum(trainsetnum)
     for c in range(classNum):
         trainsetnum[c] = len(trainset[c])
-        V.append(np.zeros(shape=(templateNum,downdim)))
+        V.append(np.zeros(shape=(templateNum, downdim)))
         for a in range(templateNum):
             V[c][a][activedim] = 1
             activedim += 1
@@ -51,20 +51,20 @@ def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=
             for n in range(len(trainset[c])):
                 for i in range(trainset[c][n].shape[0]-1):
                     for j in range(V[c].shape[0]-1):
-                        L_a += T[c][n][i][j] * np.expand_dims(trainset[c][n][i],1).dot(np.transpose(np.expand_dims(trainset[c][n][i],1)))
+                        L_a += T[c][n][i][j] * np.expand_dims(trainset[c][n][i],1).dot(np.transpose(np.expand_dims(trainset[c][n][i], 1)))
                         v = np.transpose(np.expand_dims(V[c][j],1))
                         L_b +=  T[c][n][i][j] * np.expand_dims(trainset[c][n][i],1).dot(v)
             #update L
             L_a = L_a + l * N * np.identity(dim)
-            L = np.linalg.solve(L_a,L_b)  #instead inverting L_a solve the linear system
+            L = np.linalg.solve(L_a, L_b)  #instead inverting L_a solve the linear system
             print(L)
             for n in range(len(trainset[c])):
                 #update T
                 if(align_algorithm == "dtL"):
                     d,path = dtw.fastdtw(trainset[c][n].dot(L), V[c])
-                    T[c][n] = pathToMat(path,T[c][n])
+                    T[c][n] = pathToMat(path, T[c][n])
                 else:
-                    d, T = OPW.opw(trainset[c][n].dot(L),V[c], a=None, b=None, lambda1=lambda1, lambda2=lambda2, sigma=sigma, VERBOSE=0)
+                    d, T[c][n] = OPW.opw(trainset[c][n].dot(L), V[c], a=None, b=None, lambda1=lambda1, lambda2=lambda2, sigma=sigma, VERBOSE=0)
                 loss = loss + d
             loss = loss / N + np.trace(L.dot(np.transpose(L)))
             if abs(loss - loss_old) < err_limit:
@@ -74,7 +74,7 @@ def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=
     return L
 
 def pathToMat(path, T):
-    mat = np.zeros(shape=(T.shape[0],T.shape[1]))
+    mat = np.zeros(shape=(T.shape[0], T.shape[1]))
     for el in path:
-        mat[el[0],el[1]] = 1
+        mat[el[0], el[1]] = 1
     return mat
