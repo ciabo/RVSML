@@ -24,13 +24,13 @@ def optimize(trainset,templateNum,l,err_limit, align_algorithm = "dtL", lambda1=
     activedim = 0
     downdim = classNum * templateNum
     dim = trainset[0][0].shape[1]
-    N = sum(trainsetnum)
     for c in range(classNum):
         trainsetnum[c] = len(trainset[c])
         V.append(np.zeros(shape=(templateNum, downdim)))
         for a in range(templateNum):
             V[c][a][activedim] = 1
             activedim += 1
+    N = sum(trainsetnum)
     #initialize the alignment matrices T
     T = []
     for c in range(classNum):
